@@ -40,20 +40,30 @@
     [(num n)  (number->string n)]
     [(bool b) (if b "True" "False")]
     [(plus left right)
-     (string-append
-       "(" (expr->python left) " + " (expr->python right) ")" )]
+     (plus->python (expr->python left) (expr->python right))]
     [(sub left right)
-     (string-append
-       "(" (expr->python left) " - " (expr->python right) ")" )]
+     (sub->python (expr->python left) (expr->python right))]
     [(conditional c t e)
-     (create-python-conditional
+     (conditional->python
        (expr->python c) (expr->python t) (expr->python e))]))
+
+;; Expr Expr -> String
+;; Helper function to compile umlang plus into Python.
+;; Only called from expr->python.
+(define (plus->python left-expr right-expr)
+  (string-append "(" left-expr " + " right-expr ")"))
+
+;; Expr Expr -> String
+;; Helper function to compile umlang sub into Python.
+;; Only called from expr->python.
+(define (sub->python left-expr right-expr)
+  (string-append "(" left-expr " - " right-expr ")"))
 
 ;; Expr Expr Expr -> String
 ;; Helper function to compile umlang conditional into Python.
-;; Only called from expr->python
-(define (create-python-conditional c t e)
-  (string-append t " if " c " else " e))
+;; Only called from expr->python.
+(define (conditional->python c t e)
+  (string-append "(" t " if " c " else " e ")"))
 
 
 (module+ test
@@ -64,4 +74,6 @@
   (check-equal? (expr->python (bool #f)) "False")
   (check-equal? (expr->python two-minus-ten) "(2 - 10)")
   (check-equal? (expr->python two-plus-ten) "(2 + 10)")
-  (check-equal? (expr->python if-t-one-else-minusone) "1 if True else -1"))
+  (check-equal? (expr->python if-t-one-else-minusone) "(1 if True else -1)")
+  (check-equal? (expr->python
+                  (conditional (bool #f) (num 1) (num -1))) "(1 if False else -1)"))
