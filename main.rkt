@@ -8,7 +8,7 @@
 ;; - a (plus Expr Expr) , denotes the addition of two expressions
 ;; - a (sub Expr Expr) , denotes the subtraction of right from left expression
 ;; - a (conditional Expr Expr Expr) , denotes if `c` then `t` else `e`
-(struct num [n] #:transparent)
+(struct num  [n] #:transparent)
 (struct bool [b] #:transparent)
 (struct plus [left right] #:transparent)
 (struct sub  [left right] #:transparent)
@@ -30,8 +30,12 @@
 #;(define (F expr)
   (match expr
     [(num n) ... n ...]
+    [(bool b) ... b ...]
     [(plus left right) ... (F left) ... (F right) ...]
-    [(sub  left right) ... (F left) ... (F right) ...]))
+    [(sub  left right) ... (F left) ... (F right) ...]
+    [(mul  left right) ... (F left) ... (F right) ...]
+    [(div  left right) ... (F left) ... (F right) ...]
+    [(conditional c t e) ... (F c) ... (F t) ... (F e) ...]))
 
 ;; expr->python : Expr -> String
 ;; Compiles umlang expressions to String representing python script
