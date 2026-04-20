@@ -7,6 +7,7 @@
 ;; - a (plus Expr Expr) , denotes the addition of two expressions
 (struct num [n] #:transparent)
 (struct plus [left right] #:transparent)
+(struct sub  [left right] #:transparent)
 
 ;; Examples:
 (define two (num 2))
@@ -28,10 +29,14 @@
     [(num n) (number->string n)]
     [(plus left right)
      (string-append
-       "(" (expr->python left) " + " (expr->python right) ")" )]))
+       "(" (expr->python left) " + " (expr->python right) ")" )]
+    [(sub left right)
+     (string-append
+       "(" (expr->python left) " - " (expr->python right) ")" )]))
 
 (module+ test
   (check-equal? (expr->python (num 42)) "42")
   (check-equal? (expr->python (num 3.14)) "3.14")
   (check-equal? (expr->python (num -2)) "-2")
+  (check-equal? (expr->python (sub two ten)) "(2 - 10)")
   (check-equal? (expr->python two-plus-ten) "(2 + 10)"))
