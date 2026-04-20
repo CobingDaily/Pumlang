@@ -22,7 +22,7 @@
 (define two-plus-ten (plus two ten))
 (define two-minus-ten (sub two ten))
 (define if-t-one-else-minusone 
-  (conditional (bool "t") (num 1) (num -1)))
+  (conditional (bool #t) (num 1) (num -1)))
 
 ;; Template for Expr
 ;; F : Expr -> X
