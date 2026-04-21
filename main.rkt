@@ -99,3 +99,35 @@
   (check-equal? (expr->python if-t-one-else-minusone) "(1 if True else -1)")
   (check-equal? (expr->python
                   (conditional (bool #f) (num 1) (num -1))) "(1 if False else -1)"))
+
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Parser
+;;
+;; parse : S-Exp -> Expr
+;; Parses Umlang program to produce an AST
+(define (parse s)
+  (match s
+    [(? number? n)  (num n)]
+    [(? boolean? b) (bool b)]
+    [(list '+ L R) (plus (parse L) (parse R))]
+    [(list '- L R) (sub  (parse L) (parse R))]
+    [(list '* L R) (mul  (parse L) (parse R))]
+    [(list '/ L R) (sub  (parse L) (parse R))]
+    [(list 'if c t e) (conditional (parse c) (parse t) (parse e))]
+    [_ (error 'parse "Parse error ~v" s)]))
+
+(module+ test
+  (check-equal? (parse 0) (num 0))
+  (check-equal? (parse -10) (num -10))
+  (check-equal? (parse #t) (bool #t))
+  (check-equal? (parse #f) (bool #f))
+  (check-equal? (parse `(+ 1 2)) (plus (num 1) (num 2)))
+  (check-equal? (parse `(- 2 3)) (sub  (num 2) (num 3)))
+  (check-equal? (parse `(* 3 4)) (mul  (num 3) (num 4)))
+  (check-equal? (parse `(/ 4 5)) (sub  (num 4) (num 5)))
+  (check-equal? (parse `(if #t 1 -1))
+                       (conditional (bool #t) (num 1) (num -1))))
+
+    
