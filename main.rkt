@@ -107,6 +107,7 @@
 ;;
 ;; parse : S-Exp -> Expr
 ;; Parses Umlang program to produce an AST
+;; Partial
 (define (parse s)
   (match s
     [(? number? n)  (num n)]
@@ -114,7 +115,7 @@
     [(list '+ L R) (plus (parse L) (parse R))]
     [(list '- L R) (sub  (parse L) (parse R))]
     [(list '* L R) (mul  (parse L) (parse R))]
-    [(list '/ L R) (sub  (parse L) (parse R))]
+    [(list '/ L R) (div  (parse L) (parse R))]
     [(list 'if c t e) (conditional (parse c) (parse t) (parse e))]
     [_ (error 'parse "Parse error ~v" s)]))
 
@@ -126,8 +127,21 @@
   (check-equal? (parse `(+ 1 2)) (plus (num 1) (num 2)))
   (check-equal? (parse `(- 2 3)) (sub  (num 2) (num 3)))
   (check-equal? (parse `(* 3 4)) (mul  (num 3) (num 4)))
-  (check-equal? (parse `(/ 4 5)) (sub  (num 4) (num 5)))
+  (check-equal? (parse `(/ 4 5)) (div  (num 4) (num 5)))
   (check-equal? (parse `(if #t 1 -1))
                        (conditional (bool #t) (num 1) (num -1))))
 
-    
+;; compile : S-Exp -> String
+;; Transforms the `umlang` s-expression into String denoting python code.
+;; Partial, because `parse` is partial
+(define (compile umlang)
+  (expr->python (parse umlang)))
+
+(module+ test
+  (check-equal? (compile `(+ 1 (* 2 3)))
+                "(1 + (2 * 3))")
+  (check-equal? (compile `(if #t (/ 45 5) (* 123 234)))
+                "((45 / 5) if True else (123 * 234))")
+  ;; Check for exceptions
+  (check-exn #px"Parse error" (lambda () (compile `(2 * 3)))))
+
