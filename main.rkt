@@ -143,5 +143,7 @@
   (check-equal? (compile `(if #t (/ 45 5) (* 123 234)))
                 "((45 / 5) if True else (123 * 234))")
   ;; Check for exceptions
-  (check-exn #px"Parse error" (lambda () (compile `(2 * 3)))))
+  (check-exn #px"Parse error" (lambda () (compile `(2 * 3))))
+  (check-exn #px"Parse error"
+             (lambda () (compile `(if #t 1)))))
 
